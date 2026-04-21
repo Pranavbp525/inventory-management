@@ -8,6 +8,49 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders Section -->
+      <div v-if="restockingOrders.length > 0" class="card restocking-orders-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="restocking-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Date Placed</th>
+                <th>Items</th>
+                <th>Total Value</th>
+                <th>Status</th>
+                <th>Est. Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">{{ order.items.length }} item(s)</summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ ${{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td><strong>${{ order.total_value.toLocaleString() }}</strong></td>
+                <td>
+                  <span class="badge warning">{{ order.status }}</span>
+                </td>
+                <td>{{ formatDate(order.expected_delivery) }} <span class="lead-time">(14-day lead)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +138,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -109,14 +153,16 @@ export default {
       try {
         loading.value = true
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+        const [fetchedOrders, fetchedRestocking] = await Promise.all([
+          api.getOrders(filters),
+          api.getRestockingOrders()
+        ])
 
         // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
+        orders.value = fetchedOrders.sort((a, b) =>
+          new Date(a.order_date) - new Date(b.order_date)
+        )
+        restockingOrders.value = fetchedRestocking
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -160,6 +206,7 @@ export default {
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +322,16 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-orders-card {
+  border-left: 4px solid #2563eb;
+  margin-bottom: 1.5rem;
+}
+
+.lead-time {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: 0.25rem;
 }
 </style>

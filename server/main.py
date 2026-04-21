@@ -6,6 +6,9 @@ from mock_data import inventory_items, orders, demand_forecasts, backlog_items, 
 
 app = FastAPI(title="Factory Inventory Management System")
 
+# In-memory store for restocking orders — cleared on server restart
+restocking_orders = []
+
 # Quarter mapping for date filtering
 QUARTER_MAP = {
     'Q1-2025': ['2025-01', '2025-02', '2025-03'],
@@ -119,6 +122,15 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
 
 # API endpoints
 @app.get("/")
@@ -303,6 +315,36 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order and store it in memory."""
+    from datetime import datetime, timedelta
+    import uuid
+
+    now = datetime.utcnow()
+    timestamp = now.strftime("%Y%m%d%H%M%S")
+    total = round(sum(item.quantity * item.unit_price for item in request.items), 2)
+
+    new_order = {
+        "id": str(uuid.uuid4()),
+        "order_number": f"RST-{timestamp}",
+        "customer": "Internal Restocking",
+        "items": [item.dict() for item in request.items],
+        "status": "Processing",
+        "order_date": now.isoformat(),
+        "expected_delivery": (now + timedelta(days=14)).isoformat(),
+        "total_value": total,
+        "warehouse": "all",
+        "category": "Restocking"
+    }
+    restocking_orders.append(new_order)
+    return new_order
+
+@app.get("/api/restocking-orders")
+def get_restocking_orders():
+    """Get all restocking orders stored in memory."""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
