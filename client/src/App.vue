@@ -1,42 +1,98 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+  <div class="app-shell">
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-full" v-show="!sidebarCollapsed">
+          <div class="sidebar-logo-name">{{ t('nav.companyName') }}</div>
+          <div class="sidebar-logo-sub">{{ t('nav.subtitle') }}</div>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
+        <div class="sidebar-logo-icon" v-show="sidebarCollapsed">CC</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <router-link to="/" :class="{ active: $route.path === '/' }" :title="sidebarCollapsed ? t('nav.overview') : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 6.5L8 2l6 4.5V13a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z"/>
+            <path d="M6 14V9h4v5"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.overview') }}</span>
+        </router-link>
+
+        <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }" :title="sidebarCollapsed ? t('nav.inventory') : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1z"/>
+            <path d="M8 8L14 4.5M8 8L2 4.5M8 8V15"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.inventory') }}</span>
+        </router-link>
+
+        <router-link to="/orders" :class="{ active: $route.path === '/orders' }" :title="sidebarCollapsed ? t('nav.orders') : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="1" width="10" height="14" rx="1"/>
+            <path d="M6 5h4M6 8h4M6 11h2"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.orders') }}</span>
+        </router-link>
+
+        <router-link to="/spending" :class="{ active: $route.path === '/spending' }" :title="sidebarCollapsed ? t('nav.finance') : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="10" width="3" height="5" rx="0.5"/>
+            <rect x="6" y="6" width="3" height="9" rx="0.5"/>
+            <rect x="11" y="2" width="3" height="13" rx="0.5"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.finance') }}</span>
+        </router-link>
+
+        <router-link to="/demand" :class="{ active: $route.path === '/demand' }" :title="sidebarCollapsed ? t('nav.demandForecast') : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1,11 5,7 9,9 15,3"/>
+            <polyline points="11,3 15,3 15,7"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.demandForecast') }}</span>
+        </router-link>
+
+        <router-link to="/reports" :class="{ active: $route.path === '/reports' }" :title="sidebarCollapsed ? 'Reports' : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="1" width="12" height="14" rx="1"/>
+            <path d="M5 5h6M5 8h6M5 11h3"/>
+            <path d="M10 10l4 4"/>
+            <circle cx="11" cy="10" r="2.5"/>
+          </svg>
+          <span class="nav-label">Reports</span>
+        </router-link>
+
+        <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }" :title="sidebarCollapsed ? 'Restocking' : ''">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 8A6 6 0 102 8"/>
+            <polyline points="14,4 14,8 10,8"/>
+          </svg>
+          <span class="nav-label">Restocking</span>
+        </router-link>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="sidebar-bottom">
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+
+      <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline :points="sidebarCollapsed ? '5,2 9,7 5,12' : '9,2 5,7 9,12'" />
+        </svg>
+      </button>
+    </aside>
+
+    <div class="main-area" :style="{ marginLeft: sidebarCollapsed ? '56px' : '220px', width: sidebarCollapsed ? 'calc(100% - 56px)' : 'calc(100% - 220px)' }">
+      <FilterBar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +111,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -81,7 +137,22 @@ export default {
     const showTasks = ref(false)
     const apiTasks = ref([])
 
-    // Merge mock tasks from currentUser with API tasks
+    // Sidebar collapse state — toggled by user or auto-set by viewport width
+    const sidebarCollapsed = ref(false)
+
+    const toggleSidebar = () => {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+    }
+
+    // Auto-collapse below 900px, expand above — fires on both mount and resize
+    const handleResize = () => {
+      if (window.innerWidth < 900) {
+        sidebarCollapsed.value = true
+      } else {
+        sidebarCollapsed.value = false
+      }
+    }
+
     const tasks = computed(() => {
       return [...currentUser.value.tasks, ...apiTasks.value]
     })
@@ -146,7 +217,15 @@ export default {
       }
     }
 
-    onMounted(loadTasks)
+    onMounted(() => {
+      loadTasks()
+      handleResize()
+      window.addEventListener('resize', handleResize)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+    })
 
     return {
       t,
@@ -155,13 +234,17 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      sidebarCollapsed,
+      toggleSidebar
     }
   }
 }
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -169,101 +252,152 @@ export default {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #f8fafc;
   color: #1e293b;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
+/* ─── Shell layout ─────────────────────────────────────────── */
+
+.app-shell {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
+/* ─── Sidebar ──────────────────────────────────────────────── */
+
+.sidebar {
+  background: #0f172a;
+  width: 220px;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
   top: 0;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
+  border-right: none;
+  /* Subtle separator between sidebar and content */
+  box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.06);
+  /* Animate width on collapse/expand */
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Allow toggle button to overflow the sidebar boundary */
+  overflow: visible;
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.sidebar-header {
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* Ensure header aligns content correctly in both states */
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  min-height: 68px;
+  /* Clip overflowing text inside header without clipping the toggle button */
+  overflow: hidden;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.logo h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
+.sidebar-logo-name {
   font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.sidebar-logo-sub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+  font-weight: 400;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+/* Monogram shown when collapsed — two-letter colored square */
+.sidebar-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(37, 99, 235, 0.5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+.sidebar-nav {
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* Clip overflowing text in nav without clipping toggle button */
+  overflow: hidden;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  letter-spacing: 0.005em;
+  /* Clip label overflow within the link; toggle button is outside nav entirely */
+  overflow: hidden;
+}
+
+.sidebar-nav a:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* router-link-active is set by Vue Router on the matched link;
+   .active is the manual :class binding — both must be styled */
+.sidebar-nav a.router-link-active,
+.sidebar-nav a.active {
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.35);
+  font-weight: 600;
+}
+
+.sidebar-nav a svg {
+  flex-shrink: 0;
+}
+
+.sidebar-spacer {
+  flex: 1;
+}
+
+.sidebar-bottom {
+  padding: 0.875rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Clip overflowing content inside bottom section */
+  overflow: hidden;
+}
+
+/* ─── Main area ────────────────────────────────────────────── */
+
+.main-area {
+  margin-left: 220px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f8fafc;
+  width: calc(100% - 220px);
+  /* Animate in sync with sidebar width transition */
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-content {
@@ -271,8 +405,105 @@ body {
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: 1.75rem 2rem;
 }
+
+/* ─── Sidebar collapsed state ──────────────────────────────── */
+
+.sidebar.collapsed {
+  width: 56px;
+}
+
+/* Nav label: animates out when collapsed, in when expanded */
+.nav-label {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, max-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 160px;
+  opacity: 1;
+}
+
+.sidebar.collapsed .nav-label {
+  max-width: 0;
+  opacity: 0;
+}
+
+/* Center the icon when collapsed and provide tooltip positioning context */
+.sidebar.collapsed .sidebar-nav a {
+  justify-content: center;
+  padding: 0.5rem;
+  position: relative;
+}
+
+/* Tooltip body shown to the right of collapsed nav icons on hover */
+.sidebar.collapsed .sidebar-nav a[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 0.3rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Tooltip arrow pointing left toward the icon */
+.sidebar.collapsed .sidebar-nav a[title]:hover::before {
+  content: '';
+  position: absolute;
+  left: calc(100% + 5px);
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #1e293b;
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* Collapsed bottom section: center items */
+.sidebar.collapsed .sidebar-bottom {
+  align-items: center;
+  padding: 0.875rem 0.5rem;
+}
+
+/* ─── Toggle button ────────────────────────────────────────── */
+
+/* Button sits at the right edge of the sidebar, half-inside/half-outside.
+   Sidebar uses overflow: visible so the button is not clipped. */
+.sidebar-toggle {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: #1e293b;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  transition: all 0.15s ease;
+  z-index: 110;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background: #2d3f5a;
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* ─── Global utility classes (used by all views) ───────────── */
 
 .page-header {
   margin-bottom: 1.5rem;
